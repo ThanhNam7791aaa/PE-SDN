@@ -4,26 +4,65 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --background: 36 29% 97%; /* #FAF8F5 */
+    --foreground: 24 10% 10%; /* #1C1917 */
+
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 24 10% 10%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --popover-foreground: 24 10% 10%;
+
+    --primary: 243 75% 59%; /* #4F46E5 Indigo */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 35 24% 93%; /* #F3EFE9 Muted surface */
+    --secondary-foreground: 24 10% 10%;
+
+    --muted: 35 24% 93%;
+    --muted-foreground: 30 7% 39%; /* #6B645C Muted text */
+
+    --accent: 234 100% 97%; /* #EEF0FF Soft tint */
+    --accent-foreground: 243 75% 59%;
+
+    --destructive: 0 84% 60%; /* #DC2626 */
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 33 22% 88%; /* #E7E1D8 */
+    --input: 33 22% 88%;
+    --ring: 243 75% 59%;
+
+    --radius: 0.75rem; /* 12px / rounded-xl */
+  }
+
+  .dark {
+    --background: 24 10% 6%; /* #0F0E0D */
+    --foreground: 36 30% 94%; /* #F5F1EA */
+
+    --card: 24 9% 8%; /* #171513 */
+    --card-foreground: 36 30% 94%;
+
+    --popover: 24 9% 8%;
+    --popover-foreground: 36 30% 94%;
+
+    --primary: 239 84% 67%; /* Soft indigo for dark */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 24 11% 11%; /* #1F1C19 */
+    --secondary-foreground: 36 30% 94%;
+
+    --muted: 24 11% 11%;
+    --muted-foreground: 34 9% 60%; /* #A39B90 */
+
+    --accent: 24 11% 15%;
+    --accent-foreground: 36 30% 94%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 24 9% 15%; /* #2B2723 */
+    --input: 24 9% 15%;
+    --ring: 239 84% 67%;
   }
 }
 
@@ -32,8 +71,22 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased selection:bg-indigo-100 selection:text-indigo-900;
     min-height: 100vh;
   }
 }
 
+/* Tabular numbers for all stats */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subtle dot grid pattern */
+.bg-grid-pattern {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .bg-grid-pattern {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+}

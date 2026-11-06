@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
+import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -13,6 +14,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [authError, setAuthError] = useState("");
@@ -81,10 +84,16 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] px-4 py-8">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-center text-2xl font-bold">Create an account</CardTitle>
+    <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] px-4 py-12 relative">
+      <div className="absolute inset-0 bg-grid-pattern opacity-30 pointer-events-none -z-10" />
+      <div className="absolute top-[30%] left-[50%] -translate-x-1/2 w-[350px] h-[350px] bg-indigo-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
+
+      <Card className="w-full max-w-md shadow-subtle border-border/80">
+        <CardHeader className="text-center space-y-2">
+          <CardTitle className="text-2xl font-serif">Create your journal</CardTitle>
+          <CardDescription className="text-sm">
+            Sign up to start tracking your daily reading habits
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form
@@ -96,96 +105,165 @@ export default function RegisterPage() {
             {authError && (
               <div
                 data-testid="error-auth"
-                className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md"
+                className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl flex items-center gap-2"
               >
-                {authError}
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{authError}</span>
               </div>
             )}
 
             {successMessage && (
               <div
                 data-testid="form-success"
-                className="p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md"
+                className="p-3 text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-2"
               >
-                {successMessage}
+                <CheckCircle className="h-4 w-4 shrink-0" />
+                <span>{successMessage}</span>
               </div>
             )}
 
-            <div className="space-y-1">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                data-testid="register-email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setAuthError("");
-                }}
-                placeholder="name@example.com"
-              />
+            {/* Email Field */}
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-xs font-medium text-foreground">
+                Email address
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  id="email"
+                  type="email"
+                  data-testid="register-email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setAuthError("");
+                  }}
+                  placeholder="name@example.com"
+                  className="pl-10"
+                />
+              </div>
               {emailError && (
-                <p data-testid="error-email" className="text-xs text-red-600 mt-1">
-                  {emailError}
-                </p>
+                <div
+                  data-testid="error-email"
+                  className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 mt-1"
+                >
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{emailError}</span>
+                </div>
               )}
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                data-testid="register-password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setAuthError("");
-                }}
-                placeholder="At least 6 characters"
-              />
+            {/* Password Field */}
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-xs font-medium text-foreground">
+                Password
+              </Label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  data-testid="register-password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setAuthError("");
+                  }}
+                  placeholder="At least 6 characters"
+                  className="pl-10 pr-10"
+                />
+                <button
+                  type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
               {passwordError && (
-                <p data-testid="error-password" className="text-xs text-red-600 mt-1">
-                  {passwordError}
-                </p>
+                <div
+                  data-testid="error-password"
+                  className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 mt-1"
+                >
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{passwordError}</span>
+                </div>
               )}
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                data-testid="register-confirm-password"
-                value={confirmPassword}
-                onChange={(e) => {
-                  setConfirmPassword(e.target.value);
-                  setAuthError("");
-                }}
-                placeholder="Repeat password"
-              />
+            {/* Confirm Password Field */}
+            <div className="space-y-1.5">
+              <Label htmlFor="confirmPassword" className="text-xs font-medium text-foreground">
+                Confirm Password
+              </Label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  data-testid="register-confirm-password"
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    setAuthError("");
+                  }}
+                  placeholder="Repeat your password"
+                  className="pl-10 pr-10"
+                />
+                <button
+                  type="button"
+                  aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
               {confirmPasswordError && (
-                <p data-testid="error-confirm-password" className="text-xs text-red-600 mt-1">
-                  {confirmPasswordError}
-                </p>
+                <div
+                  data-testid="error-confirm-password"
+                  className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 mt-1"
+                >
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{confirmPasswordError}</span>
+                </div>
               )}
             </div>
 
             <Button
               type="submit"
               data-testid="register-submit"
-              className="w-full mt-4"
+              className="w-full mt-2 font-medium"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Creating account..." : "Register"}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Creating account...
+                </>
+              ) : (
+                "Create Account"
+              )}
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="justify-center border-t py-4">
-          <p className="text-sm text-gray-600">
+        <CardFooter className="justify-center border-t border-border/60 py-4">
+          <p className="text-xs text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/login" className="text-blue-600 font-medium hover:underline">
-              Log in
+            <Link
+              href="/login"
+              className="text-primary font-medium hover:underline transition-colors"
+            >
+              Sign in
             </Link>
           </p>
         </CardFooter>
@@ -193,4 +271,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-

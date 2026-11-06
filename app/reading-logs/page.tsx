@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 import { useReadingLogs } from "@/context/reading-log-context";
@@ -8,7 +8,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getGenreStyle } from "@/lib/genre-styles";
+import {
+  BookOpen,
+  Calendar,
+  Clock,
+  Heart,
+  Plus,
+  RotateCcw,
+  Search,
+  Star,
+  Trash2,
+  X,
+  AlertCircle,
+  CheckCircle,
+  Loader2,
+  Sparkles,
+} from "lucide-react";
 
 const GENRES = ["Fiction", "Non-Fiction", "Sci-Fi", "Biography", "Other"] as const;
 
@@ -19,6 +37,7 @@ export default function ReadingLogsPage() {
   const {
     readingLogs,
     summary,
+    loading: logsLoading,
     genreFilter,
     favoriteFilter,
     searchQuery,
@@ -43,6 +62,8 @@ export default function ReadingLogsPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
   // Auth protection: no content flashed while checking
   useEffect(() => {
     if (!authLoading && !user) {
@@ -54,7 +75,7 @@ export default function ReadingLogsPage() {
     return null;
   }
 
-  // Field validation helpers
+  // Field validation helpers (exact spec messages)
   const getBookTitleError = (val: string) => {
     if (!val.trim()) return "Book title is required";
     if (val.trim().length > 80) return "Book title must be at most 80 characters";
@@ -126,20 +147,42 @@ export default function ReadingLogsPage() {
       setNote("");
       setDate("");
       setHasSubmitted(false);
+      // Autofocus title field after successful add
+      setTimeout(() => {
+        titleInputRef.current?.focus();
+      }, 50);
     } else {
       setApiError(result.error || "Failed to add reading session");
     }
   };
 
+  // Max total for progress bar scaling in breakdown
+  const maxTotalMinutes =
+    summary.breakdown.length > 0
+      ? Math.max(...summary.breakdown.map((b) => b.total), 1)
+      : 1;
+
   return (
-    <div data-testid="reading-logs-page" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Form & Summary */}
-        <div className="xl:col-span-5 space-y-8">
-          {/* Add Reading Session Form */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl">Add a Reading Session</CardTitle>
+    <div
+      data-testid="reading-logs-page"
+      className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10"
+    >
+      {/* Responsive layout:
+          On desktop (>= 1280px): 12-col grid (4 cols left sticky, 8 cols right).
+          On mobile/tablet (< 1280px): single column ordered: Summary, Form, Filters, List.
+      */}
+      <div className="flex flex-col xl:grid xl:grid-cols-12 gap-6 items-start">
+        {/* Summary Card: order-1 on mobile, left column on desktop */}
+        <div className="w-full order-1 xl:order-none xl:col-span-4 space-y-6 xl:sticky xl:top-20 self-start">
+          {/* Add Reading Session Card */}
+          <Card className="shadow-subtle order-2 xl:order-1">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl">Add reading session</CardTitle>
+                <div className="h-8 w-8 rounded-xl bg-accent text-primary flex items-center justify-center">
+                  <Plus className="h-4 w-4" />
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <form
@@ -151,25 +194,20 @@ export default function ReadingLogsPage() {
                 {apiError && (
                   <div
                     data-testid="error-reading-log"
-                    className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md"
+                    className="p-3 text-xs sm:text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl flex items-center gap-2"
                   >
-                    {apiError}
+                    <AlertCircle className="h-4 w-4 shrink-0" />
+                    <span>{apiError}</span>
                   </div>
                 )}
 
-                {successMessage && (
-                  <div
-                    data-testid="reading-log-success"
-                    className="p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md"
-                  >
-                    {successMessage}
-                  </div>
-                )}
-
-                {/* Book title */}
-                <div className="space-y-1">
-                  <Label htmlFor="bookTitle">Book title</Label>
+                {/* Book Title (Full width) */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="bookTitle" className="text-xs font-medium">
+                    Book title
+                  </Label>
                   <Input
+                    ref={titleInputRef}
                     id="bookTitle"
                     data-testid="input-book-title"
                     value={bookTitle}
@@ -181,38 +219,80 @@ export default function ReadingLogsPage() {
                     placeholder="e.g. Atomic Habits"
                   />
                   {bookTitleError && (
-                    <p data-testid="error-book-title" className="text-xs text-red-600 mt-1">
-                      {bookTitleError}
-                    </p>
+                    <div
+                      data-testid="error-book-title"
+                      className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 mt-1"
+                    >
+                      <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                      <span>{bookTitleError}</span>
+                    </div>
                   )}
                 </div>
 
-                {/* Minutes read */}
-                <div className="space-y-1">
-                  <Label htmlFor="minutesRead">Minutes read</Label>
-                  <Input
-                    id="minutesRead"
-                    type="number"
-                    step="1"
-                    data-testid="input-minutes"
-                    value={minutesRead}
-                    onChange={(e) => {
-                      setMinutesRead(e.target.value);
-                      setApiError("");
-                      setSuccessMessage("");
-                    }}
-                    placeholder="e.g. 40"
-                  />
-                  {minutesError && (
-                    <p data-testid="error-minutes" className="text-xs text-red-600 mt-1">
-                      {minutesError}
-                    </p>
-                  )}
+                {/* 2-Column Grid on sm+: Minutes + Date */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Minutes Read */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="minutesRead" className="text-xs font-medium">
+                      Minutes read
+                    </Label>
+                    <Input
+                      id="minutesRead"
+                      type="text"
+                      inputMode="numeric"
+                      data-testid="input-minutes"
+                      value={minutesRead}
+                      onChange={(e) => {
+                        setMinutesRead(e.target.value);
+                        setApiError("");
+                        setSuccessMessage("");
+                      }}
+                      placeholder="e.g. 40"
+                    />
+                    {minutesError && (
+                      <div
+                        data-testid="error-minutes"
+                        className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 mt-1"
+                      >
+                        <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                        <span>{minutesError}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Date */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="date" className="text-xs font-medium">
+                      Date
+                    </Label>
+                    <Input
+                      id="date"
+                      type="date"
+                      data-testid="input-date"
+                      value={date}
+                      onChange={(e) => {
+                        setDate(e.target.value);
+                        setApiError("");
+                        setSuccessMessage("");
+                      }}
+                    />
+                    {dateError && (
+                      <div
+                        data-testid="error-date"
+                        className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 mt-1"
+                      >
+                        <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                        <span>{dateError}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                {/* Genre */}
-                <div className="space-y-1">
-                  <Label htmlFor="genre">Genre</Label>
+                {/* Genre (Native select) */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="genre" className="text-xs font-medium">
+                    Genre
+                  </Label>
                   <select
                     id="genre"
                     data-testid="input-genre"
@@ -222,7 +302,7 @@ export default function ReadingLogsPage() {
                       setApiError("");
                       setSuccessMessage("");
                     }}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="flex min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 py-2 text-base sm:text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary transition-colors cursor-pointer"
                   >
                     <option value="">Choose genre</option>
                     {GENRES.map((g) => (
@@ -232,111 +312,175 @@ export default function ReadingLogsPage() {
                     ))}
                   </select>
                   {genreError && (
-                    <p data-testid="error-genre" className="text-xs text-red-600 mt-1">
-                      {genreError}
-                    </p>
+                    <div
+                      data-testid="error-genre"
+                      className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 mt-1"
+                    >
+                      <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                      <span>{genreError}</span>
+                    </div>
                   )}
                 </div>
 
-                {/* Date */}
-                <div className="space-y-1">
-                  <Label htmlFor="date">Date</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    data-testid="input-date"
-                    value={date}
-                    onChange={(e) => {
-                      setDate(e.target.value);
-                      setApiError("");
-                      setSuccessMessage("");
-                    }}
-                  />
-                  {dateError && (
-                    <p data-testid="error-date" className="text-xs text-red-600 mt-1">
-                      {dateError}
-                    </p>
-                  )}
-                </div>
-
-                {/* Note */}
-                <div className="space-y-1">
-                  <Label htmlFor="note">Note (optional)</Label>
+                {/* Note (optional) */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="note" className="text-xs font-medium text-muted-foreground">
+                    Note <span className="font-normal">(optional)</span>
+                  </Label>
                   <Input
                     id="note"
                     data-testid="input-note"
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    placeholder="e.g. Chapter 3"
+                    placeholder="Optional note"
                   />
                 </div>
 
                 <Button
                   type="submit"
                   data-testid="btn-add-reading-log"
-                  className="w-full mt-2"
+                  className="w-full gap-2 font-medium"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Adding..." : "Add Reading Session"}
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4" />
+                      Add Reading Session
+                    </>
+                  )}
                 </Button>
+
+                {successMessage && (
+                  <div
+                    data-testid="reading-log-success"
+                    className="p-3 text-xs sm:text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-2 mt-2"
+                  >
+                    <CheckCircle className="h-4 w-4 shrink-0" />
+                    <span>{successMessage}</span>
+                  </div>
+                )}
               </form>
             </CardContent>
           </Card>
 
-          {/* Reading Summary */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl">Reading Summary</CardTitle>
+          {/* Summary Card */}
+          <Card className="shadow-subtle order-1 xl:order-2">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl font-serif">Summary</CardTitle>
+                <Sparkles className="h-4 w-4 text-primary" />
+              </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="bg-slate-50 p-3 rounded-lg border">
-                  <div className="text-xs font-medium text-gray-500 uppercase">Sessions</div>
-                  <div data-testid="reading-log-count" className="text-2xl font-bold text-gray-900 mt-1">
-                    {summary.count}
+              {/* 3 Stat Tiles in a row */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center">
+                {/* Tile 1: Sessions */}
+                <div className="p-3 rounded-xl bg-secondary/80 border border-border/60">
+                  <div className="flex justify-center mb-1">
+                    <BookOpen className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="text-xl sm:text-2xl font-serif font-bold text-foreground tabular-nums">
+                    <span data-testid="reading-log-count">{summary.count}</span>
+                  </div>
+                  <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mt-0.5">
+                    Sessions
                   </div>
                 </div>
 
-                <div className="bg-slate-50 p-3 rounded-lg border">
-                  <div className="text-xs font-medium text-gray-500 uppercase">Favorites</div>
-                  <div data-testid="favorite-count" className="text-2xl font-bold text-red-500 mt-1">
-                    {summary.favoriteCount}
+                {/* Tile 2: Favorites */}
+                <div className="p-3 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/40">
+                  <div className="flex justify-center mb-1">
+                    <Star className="h-4 w-4 text-amber-500 fill-amber-400" />
+                  </div>
+                  <div className="text-xl sm:text-2xl font-serif font-bold text-amber-600 dark:text-amber-400 tabular-nums">
+                    <span data-testid="favorite-count">{summary.favoriteCount}</span>
+                  </div>
+                  <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mt-0.5">
+                    Favorites
                   </div>
                 </div>
 
-                <div className="bg-slate-50 p-3 rounded-lg border">
-                  <div className="text-xs font-medium text-gray-500 uppercase">Minutes</div>
-                  <div data-testid="total-minutes" className="text-2xl font-bold text-blue-600 mt-1">
-                    {summary.totalMinutes}
+                {/* Tile 3: Minutes */}
+                <div className="p-3 rounded-xl bg-accent/60 border border-indigo-200/50 dark:border-indigo-900/40">
+                  <div className="flex justify-center mb-1">
+                    <Clock className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="text-xl sm:text-2xl font-serif font-bold text-primary tabular-nums">
+                    <span data-testid="total-minutes">{summary.totalMinutes}</span>
+                  </div>
+                  <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mt-0.5">
+                    Minutes
                   </div>
                 </div>
               </div>
 
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3">Genre Breakdown</h4>
-                <div data-testid="genre-breakdown" className="space-y-2">
+              {/* Genre Breakdown List */}
+              <div className="space-y-3">
+                <div className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                  Minutes by Genre
+                </div>
+
+                <div data-testid="genre-breakdown" className="space-y-2.5">
                   {summary.breakdown.length === 0 ? (
-                    <p className="text-xs text-gray-400 italic">No genre data</p>
+                    <p className="text-xs text-muted-foreground italic py-2 text-center">
+                      No reading data recorded yet
+                    </p>
                   ) : (
-                    summary.breakdown.map((row) => (
-                      <div
-                        key={row.genre}
-                        data-testid="breakdown-row"
-                        className="flex items-center justify-between p-2.5 bg-gray-50 rounded-md border text-sm"
-                      >
-                        <span data-testid="breakdown-name" className="font-medium text-gray-800">
-                          {row.genre}
-                        </span>
-                        <div className="flex items-center gap-4">
-                          <span data-testid="breakdown-count" className="text-xs text-gray-500">
-                            {row.count} {row.count === 1 ? "session" : "sessions"}
-                          </span>
-                          <span data-testid="breakdown-total" className="font-semibold text-gray-900">
-                            {row.total}
-                          </span>
+                    summary.breakdown.map((row) => {
+                      const style = getGenreStyle(row.genre);
+                      const IconComponent = style.icon;
+                      const percentage = Math.min(
+                        100,
+                        Math.round((row.total / maxTotalMinutes) * 100)
+                      );
+
+                      return (
+                        <div
+                          key={row.genre}
+                          data-testid="breakdown-row"
+                          className="p-2.5 rounded-xl bg-card border border-border/80 space-y-2"
+                        >
+                          <div className="flex items-center justify-between gap-2 text-xs">
+                            <div className="flex items-center gap-2 font-medium text-foreground">
+                              <div
+                                className={`h-6 w-6 rounded-lg ${style.iconBg} ${style.iconColor} flex items-center justify-center shrink-0`}
+                              >
+                                <IconComponent className="h-3.5 w-3.5" />
+                              </div>
+                              <span data-testid="breakdown-name">{row.genre}</span>
+                            </div>
+
+                            <div className="flex items-center gap-3 tabular-nums">
+                              <span className="text-muted-foreground">
+                                <span data-testid="breakdown-count">{row.count}</span>{" "}
+                                <span className="text-[10px]">
+                                  {row.count === 1 ? "session" : "sessions"}
+                                </span>
+                              </span>
+                              <span className="font-semibold text-foreground">
+                                <span data-testid="breakdown-total">{row.total}</span>{" "}
+                                <span className="text-[10px] text-muted-foreground font-normal">
+                                  min
+                                </span>
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Decorative Progress Bar */}
+                          <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
+                            <div
+                              className={`h-full ${style.barColor} rounded-full transition-[width] duration-500 motion-safe`}
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </div>
@@ -344,29 +488,41 @@ export default function ReadingLogsPage() {
           </Card>
         </div>
 
-        {/* Right Column: Filters & List */}
-        <div className="xl:col-span-7 space-y-6">
-          {/* Filters & Search */}
-          <Card>
-            <CardContent className="p-4 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {/* Search */}
-                <div>
+        {/* Right Column: Filters + List (order-3 & 4 on mobile, 8 cols on desktop) */}
+        <div className="w-full order-3 xl:order-none xl:col-span-8 space-y-6">
+          {/* Filter Bar Toolbar */}
+          <Card className="shadow-subtle">
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                {/* Search with inline clear */}
+                <div className="relative flex-1">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   <Input
                     data-testid="search-input"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search book title or note..."
+                    className="pl-9 pr-8"
                   />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      aria-label="Clear search"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground rounded-md"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
 
-                {/* Genre filter */}
-                <div>
+                {/* Genre Select */}
+                <div className="w-full sm:w-44 shrink-0">
                   <select
                     data-testid="filter-genre"
                     value={genreFilter}
                     onChange={(e) => setGenreFilter(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="flex min-h-[44px] w-full rounded-xl border border-input bg-card px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
                   >
                     <option value="">All</option>
                     {GENRES.map((g) => (
@@ -377,26 +533,29 @@ export default function ReadingLogsPage() {
                   </select>
                 </div>
 
-                {/* Favorites filter & Clear button */}
-                <div className="flex items-center justify-between gap-2">
-                  <label className="flex items-center gap-2 cursor-pointer text-sm font-medium">
+                {/* Favorites Only Toggle & Clear */}
+                <div className="flex items-center justify-between sm:justify-start gap-2">
+                  <label className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-card text-xs font-medium cursor-pointer hover:bg-muted transition-colors select-none">
                     <input
                       type="checkbox"
                       data-testid="filter-favorite"
                       checked={favoriteFilter}
                       onChange={(e) => setFavoriteFilter(e.target.checked)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                      className="rounded border-input text-primary focus:ring-primary h-4 w-4"
                     />
                     <span>Favorites only</span>
                   </label>
 
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
                     data-testid="btn-clear-filters"
                     onClick={clearFilters}
+                    className="gap-1.5 text-xs text-muted-foreground hover:text-foreground shrink-0"
+                    title="Reset filters"
                   >
-                    Clear
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    <span>Clear</span>
                   </Button>
                 </div>
               </div>
@@ -405,78 +564,136 @@ export default function ReadingLogsPage() {
 
           {/* Reading Log List */}
           <div>
-            {readingLogs.length === 0 ? (
-              <div
-                data-testid="reading-logs-empty"
-                className="text-center py-16 bg-white border rounded-lg shadow-sm"
-              >
-                <p className="text-gray-500 font-medium">No reading sessions found</p>
+            {logsLoading && readingLogs.length === 0 ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <Card key={i} className="p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="h-10 w-10 rounded-xl" />
+                        <div className="space-y-1.5">
+                          <Skeleton className="h-5 w-40" />
+                          <Skeleton className="h-3.5 w-24" />
+                        </div>
+                      </div>
+                      <Skeleton className="h-8 w-16" />
+                    </div>
+                  </Card>
+                ))}
               </div>
+            ) : readingLogs.length === 0 ? (
+              <Card
+                data-testid="reading-logs-empty"
+                className="py-16 text-center border-dashed border-2 border-border/80 shadow-none bg-card/60"
+              >
+                <div className="max-w-xs mx-auto space-y-3">
+                  <div className="h-14 w-14 rounded-2xl bg-muted mx-auto flex items-center justify-center text-muted-foreground">
+                    <BookOpen className="h-7 w-7" />
+                  </div>
+                  <h3 className="font-serif font-medium text-lg text-foreground">
+                    No reading sessions found
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Try adjusting your filters or record a new session to populate your journal.
+                  </p>
+                </div>
+              </Card>
             ) : (
               <div data-testid="reading-log-list" className="space-y-3">
-                {readingLogs.map((log) => (
-                  <div
-                    key={log.id}
-                    data-testid="reading-log-item"
-                    className="flex items-center justify-between p-4 bg-white border rounded-lg shadow-sm hover:border-gray-300 transition-colors"
-                  >
-                    <div className="space-y-1 pr-4">
-                      <div className="flex items-center gap-2">
-                        <span data-testid="reading-log-title" className="font-semibold text-gray-900">
-                          {log.bookTitle}
-                        </span>
-                        <span
-                          data-testid="reading-log-genre"
-                          className="px-2 py-0.5 text-xs font-medium rounded-full bg-blue-50 text-blue-700 border border-blue-200"
+                {readingLogs.map((log) => {
+                  const style = getGenreStyle(log.genre);
+                  const IconComponent = style.icon;
+
+                  return (
+                    <div
+                      key={log.id}
+                      data-testid="reading-log-item"
+                      className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 shadow-subtle hover:shadow-subtle-hover hover:border-primary/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    >
+                      {/* Left & Middle info */}
+                      <div className="flex items-start gap-3.5 min-w-0 flex-1">
+                        <div
+                          className={`h-11 w-11 rounded-xl ${style.iconBg} ${style.iconColor} flex items-center justify-center shrink-0 mt-0.5`}
                         >
-                          {log.genre}
-                        </span>
+                          <IconComponent className="h-5 w-5" />
+                        </div>
+
+                        <div className="space-y-1.5 min-w-0 flex-1">
+                          {/* Title */}
+                          <h4
+                            data-testid="reading-log-title"
+                            title={log.bookTitle}
+                            className="font-medium text-base text-foreground truncate"
+                          >
+                            {log.bookTitle}
+                          </h4>
+
+                          {/* Meta Row: Genre Badge, Date, Minutes */}
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-muted-foreground">
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${style.badgeBg} ${style.badgeText} ${style.badgeBorder}`}
+                            >
+                              <span data-testid="reading-log-genre">{log.genre}</span>
+                            </span>
+
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-3.5 w-3.5" />
+                              <span data-testid="reading-log-date">{log.readOn}</span>
+                            </div>
+
+                            <div className="flex items-center gap-1 font-medium text-foreground tabular-nums">
+                              <Clock className="h-3.5 w-3.5 text-primary" />
+                              <span data-testid="reading-log-minutes">{log.minutesRead}</span>
+                              <span className="text-muted-foreground font-normal">min</span>
+                            </div>
+                          </div>
+
+                          {/* Optional Note (clamped to 2 lines) */}
+                          {log.note && (
+                            <p className="text-xs text-muted-foreground italic line-clamp-2 pt-1">
+                              &ldquo;{log.note}&rdquo;
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
-                        <span data-testid="reading-log-date">{log.readOn}</span>
-                        {log.note && (
-                          <span className="italic text-gray-400 max-w-xs truncate">
-                            {log.note}
-                          </span>
-                        )}
+
+                      {/* Right Action Buttons */}
+                      <div className="flex items-center justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/50">
+                        {/* Toggle Favorite Button */}
+                        <button
+                          type="button"
+                          data-testid="btn-toggle-favorite"
+                          aria-pressed={log.favorite ? "true" : "false"}
+                          onClick={() => toggleFavorite(log.id, log.favorite)}
+                          className={`h-10 w-10 rounded-xl border flex items-center justify-center transition-all ${
+                            log.favorite
+                              ? "bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-500 scale-105 shadow-sm"
+                              : "bg-card border-input text-muted-foreground hover:text-amber-500 hover:border-amber-300"
+                          }`}
+                          title={log.favorite ? "Unmark favorite" : "Mark as favorite"}
+                        >
+                          <Star
+                            className={`h-4 w-4 ${
+                              log.favorite ? "fill-amber-400 text-amber-500" : ""
+                            }`}
+                          />
+                        </button>
+
+                        {/* Delete Button */}
+                        <button
+                          type="button"
+                          data-testid="btn-delete-reading-log"
+                          aria-label="Delete"
+                          onClick={() => deleteReadingLog(log.id)}
+                          className="h-10 w-10 rounded-xl border border-transparent hover:border-destructive/30 text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex items-center justify-center transition-colors"
+                          title="Delete reading session"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-4 flex-shrink-0">
-                      <div className="text-right">
-                        <span data-testid="reading-log-minutes" className="font-bold text-gray-900 text-base">
-                          {log.minutesRead}
-                        </span>
-                        <span className="text-xs text-gray-500 ml-1">mins</span>
-                      </div>
-
-                      <button
-                        type="button"
-                        data-testid="btn-toggle-favorite"
-                        aria-pressed={log.favorite ? "true" : "false"}
-                        onClick={() => toggleFavorite(log.id, log.favorite)}
-                        className={`p-2 rounded-full border transition-colors ${
-                          log.favorite
-                            ? "bg-red-50 border-red-300 text-red-500 hover:bg-red-100"
-                            : "bg-white border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200"
-                        }`}
-                        title={log.favorite ? "Unmark favorite" : "Mark as favorite"}
-                      >
-                        <Heart className={`h-4 w-4 ${log.favorite ? "fill-red-500" : ""}`} />
-                      </button>
-
-                      <button
-                        type="button"
-                        data-testid="btn-delete-reading-log"
-                        onClick={() => deleteReadingLog(log.id)}
-                        className="p-2 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors"
-                        title="Delete reading session"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -485,4 +702,3 @@ export default function ReadingLogsPage() {
     </div>
   );
 }
-

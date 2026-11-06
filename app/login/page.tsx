@@ -7,13 +7,15 @@ import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
+import { Mail, Lock, Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [authError, setAuthError] = useState("");
@@ -71,10 +73,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] px-4 py-8">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-center text-2xl font-bold">Sign In</CardTitle>
+    <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] px-4 py-12 relative">
+      <div className="absolute inset-0 bg-grid-pattern opacity-30 pointer-events-none -z-10" />
+      <div className="absolute top-[30%] left-[50%] -translate-x-1/2 w-[350px] h-[350px] bg-indigo-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
+
+      <Card className="w-full max-w-md shadow-subtle border-border/80">
+        <CardHeader className="text-center space-y-2">
+          <CardTitle className="text-2xl font-serif">Welcome back</CardTitle>
+          <CardDescription className="text-sm">
+            Sign in to access your reading sessions
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form
@@ -86,67 +94,112 @@ export default function LoginPage() {
             {authError && (
               <div
                 data-testid="error-auth"
-                className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md"
+                className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl flex items-center gap-2"
               >
-                {authError}
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{authError}</span>
               </div>
             )}
 
-            <div className="space-y-1">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                data-testid="login-email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setAuthError("");
-                }}
-                placeholder="name@example.com"
-              />
+            {/* Email Field */}
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-xs font-medium text-foreground">
+                Email address
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  id="email"
+                  type="email"
+                  data-testid="login-email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setAuthError("");
+                  }}
+                  placeholder="name@example.com"
+                  className="pl-10"
+                />
+              </div>
               {emailError && (
-                <p data-testid="error-email" className="text-xs text-red-600 mt-1">
-                  {emailError}
-                </p>
+                <div
+                  data-testid="error-email"
+                  className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 mt-1"
+                >
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{emailError}</span>
+                </div>
               )}
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                data-testid="login-password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setAuthError("");
-                }}
-                placeholder="Your password"
-              />
+            {/* Password Field */}
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-xs font-medium text-foreground">
+                Password
+              </Label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  data-testid="login-password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setAuthError("");
+                  }}
+                  placeholder="Your password"
+                  className="pl-10 pr-10"
+                />
+                <button
+                  type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
               {passwordError && (
-                <p data-testid="error-password" className="text-xs text-red-600 mt-1">
-                  {passwordError}
-                </p>
+                <div
+                  data-testid="error-password"
+                  className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 mt-1"
+                >
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{passwordError}</span>
+                </div>
               )}
             </div>
 
             <Button
               type="submit"
               data-testid="login-submit"
-              className="w-full mt-4"
+              className="w-full mt-2 font-medium"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Signing in..." : "Log In"}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Signing in...
+                </>
+              ) : (
+                "Log In"
+              )}
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="justify-center border-t py-4">
-          <p className="text-sm text-gray-600">
+        <CardFooter className="justify-center border-t border-border/60 py-4">
+          <p className="text-xs text-muted-foreground">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-blue-600 font-medium hover:underline">
-              Register
+            <Link
+              href="/register"
+              className="text-primary font-medium hover:underline transition-colors"
+            >
+              Register here
             </Link>
           </p>
         </CardFooter>
