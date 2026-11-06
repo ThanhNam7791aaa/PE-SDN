@@ -44,6 +44,16 @@ interface ReadingLogContextType {
     note?: string;
     readOn: string;
   }) => Promise<{ success: boolean; error?: string }>;
+  updateReadingLog: (
+    id: string,
+    data: {
+      bookTitle?: string;
+      minutesRead?: number;
+      genre?: string;
+      note?: string;
+      readOn?: string;
+    }
+  ) => Promise<{ success: boolean; error?: string }>;
   toggleFavorite: (id: string, currentFavorite: boolean) => Promise<{ success: boolean; error?: string }>;
   deleteReadingLog: (id: string) => Promise<{ success: boolean; error?: string }>;
   resetReadingLogs: () => void;
@@ -161,6 +171,35 @@ export function ReadingLogProvider({ children }: { children: React.ReactNode }) 
     }
   };
 
+  const updateReadingLog = async (
+    id: string,
+    data: {
+      bookTitle?: string;
+      minutesRead?: number;
+      genre?: string;
+      note?: string;
+      readOn?: string;
+    }
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const res = await fetch(`/api/reading-logs/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const resData = await res.json();
+      if (!res.ok) {
+        return { success: false, error: resData.error || "Failed to update reading session" };
+      }
+
+      await fetchData();
+      return { success: true };
+    } catch {
+      return { success: false, error: "Network error" };
+    }
+  };
+
   const toggleFavorite = async (
     id: string,
     currentFavorite: boolean
@@ -217,6 +256,7 @@ export function ReadingLogProvider({ children }: { children: React.ReactNode }) 
         clearFilters,
         fetchData,
         addReadingLog,
+        updateReadingLog,
         toggleFavorite,
         deleteReadingLog,
         resetReadingLogs,
@@ -234,4 +274,3 @@ export function useReadingLogs() {
   }
   return context;
 }
-

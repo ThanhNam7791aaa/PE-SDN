@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
-import { useReadingLogs } from "@/context/reading-log-context";
+import { useReadingLogs, ReadingLog } from "@/context/reading-log-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,7 @@ import {
   Search,
   Star,
   Trash2,
+  Pencil,
   X,
   AlertCircle,
   CheckCircle,
@@ -44,11 +45,12 @@ export default function ReadingLogsPage() {
     setSearchQuery,
     clearFilters,
     addReadingLog,
+    updateReadingLog,
     toggleFavorite,
     deleteReadingLog,
   } = useReadingLogs();
 
-  // Form state
+  // Add Form state
   const [bookTitle, setBookTitle] = useState("");
   const [minutesRead, setMinutesRead] = useState("");
   const [genre, setGenre] = useState("");
@@ -59,6 +61,16 @@ export default function ReadingLogsPage() {
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Edit Modal state
+  const [editingLog, setEditingLog] = useState<ReadingLog | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editMinutes, setEditMinutes] = useState("");
+  const [editGenre, setEditGenre] = useState("");
+  const [editNote, setEditNote] = useState("");
+  const [editDate, setEditDate] = useState("");
+  const [editError, setEditError] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const titleInputRef = useRef<HTMLInputElement>(null);
 
@@ -151,6 +163,50 @@ export default function ReadingLogsPage() {
       }, 50);
     } else {
       setApiError(result.error || "Failed to add reading session");
+    }
+  };
+
+  // Open Edit Modal
+  const openEditModal = (log: ReadingLog) => {
+    setEditingLog(log);
+    setEditTitle(log.bookTitle);
+    setEditMinutes(String(log.minutesRead));
+    setEditGenre(log.genre);
+    setEditNote(log.note);
+    setEditDate(log.readOn);
+    setEditError("");
+  };
+
+  // Handle Edit Submit
+  const handleUpdateReadingLog = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingLog) return;
+    setEditError("");
+
+    const btErr = getBookTitleError(editTitle);
+    const mErr = getMinutesError(editMinutes);
+    const gErr = getGenreError(editGenre);
+    const dErr = getDateError(editDate);
+
+    if (btErr || mErr || gErr || dErr) {
+      setEditError(btErr || mErr || gErr || dErr);
+      return;
+    }
+
+    setIsUpdating(true);
+    const result = await updateReadingLog(editingLog.id, {
+      bookTitle: editTitle.trim(),
+      minutesRead: Math.floor(Number(editMinutes)),
+      genre: editGenre,
+      readOn: editDate,
+      note: editNote.trim(),
+    });
+    setIsUpdating(false);
+
+    if (result.success) {
+      setEditingLog(null);
+    } else {
+      setEditError(result.error || "Failed to update reading session");
     }
   };
 
@@ -657,7 +713,7 @@ export default function ReadingLogsPage() {
                         </div>
                       </div>
 
-                      {/* Right Actions */}
+                      {/* Right Actions: Favorite, Edit, Delete */}
                       <div className="flex items-center justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/50">
                         {/* Star Button */}
                         <button
@@ -681,6 +737,17 @@ export default function ReadingLogsPage() {
                           />
                         </button>
 
+                        {/* Edit Button */}
+                        <button
+                          type="button"
+                          aria-label="Edit"
+                          onClick={() => openEditModal(log)}
+                          className="h-11 w-11 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-indigo-400 text-slate-600 dark:text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 flex items-center justify-center transition-colors shadow-sm"
+                          title="Edit reading session"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+
                         {/* Delete Button */}
                         <button
                           type="button"
@@ -701,6 +768,153 @@ export default function ReadingLogsPage() {
           </div>
         </div>
       </div>
+
+      {/* Edit Reading Session Modal */}
+      {editingLog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <Card className="w-full max-w-lg shadow-2xl border-border bg-card">
+            <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-border">
+              <CardTitle className="text-xl font-bold font-serif flex items-center gap-2">
+                <Pencil className="h-5 w-5 text-indigo-600" />
+                Edit Reading Session
+              </CardTitle>
+              <button
+                type="button"
+                onClick={() => setEditingLog(null)}
+                className="h-8 w-8 rounded-lg text-slate-500 hover:text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </CardHeader>
+            <CardContent className="pt-5">
+              <form onSubmit={handleUpdateReadingLog} className="space-y-4">
+                {editError && (
+                  <div className="p-3 text-xs sm:text-sm text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 rounded-xl flex items-center gap-2 font-medium">
+                    <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
+                    <span>{editError}</span>
+                  </div>
+                )}
+
+                {/* Edit Book Title */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="editTitle" className="text-xs font-semibold text-foreground">
+                    Book title
+                  </Label>
+                  <Input
+                    id="editTitle"
+                    value={editTitle}
+                    onChange={(e) => {
+                      setEditTitle(e.target.value);
+                      setEditError("");
+                    }}
+                    placeholder="Book title"
+                    className="border-slate-300 dark:border-slate-700 font-medium"
+                  />
+                </div>
+
+                {/* 2-Column: Minutes + Date */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="editMinutes" className="text-xs font-semibold text-foreground">
+                      Minutes read
+                    </Label>
+                    <Input
+                      id="editMinutes"
+                      type="text"
+                      inputMode="numeric"
+                      value={editMinutes}
+                      onChange={(e) => {
+                        setEditMinutes(e.target.value);
+                        setEditError("");
+                      }}
+                      placeholder="Minutes"
+                      className="border-slate-300 dark:border-slate-700 font-medium"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="editDate" className="text-xs font-semibold text-foreground">
+                      Date
+                    </Label>
+                    <Input
+                      id="editDate"
+                      type="date"
+                      value={editDate}
+                      onChange={(e) => {
+                        setEditDate(e.target.value);
+                        setEditError("");
+                      }}
+                      className="border-slate-300 dark:border-slate-700 font-medium"
+                    />
+                  </div>
+                </div>
+
+                {/* Edit Genre */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="editGenre" className="text-xs font-semibold text-foreground">
+                    Genre
+                  </Label>
+                  <select
+                    id="editGenre"
+                    value={editGenre}
+                    onChange={(e) => {
+                      setEditGenre(e.target.value);
+                      setEditError("");
+                    }}
+                    className="flex min-h-[44px] w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-card px-3.5 py-2 text-sm text-foreground font-medium shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
+                  >
+                    {GENRES.map((g) => (
+                      <option key={g} value={g}>
+                        {g}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Edit Note */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="editNote" className="text-xs font-semibold text-foreground">
+                    Note <span className="font-normal text-muted-foreground">(optional)</span>
+                  </Label>
+                  <Input
+                    id="editNote"
+                    value={editNote}
+                    onChange={(e) => setEditNote(e.target.value)}
+                    placeholder="Optional note"
+                    className="border-slate-300 dark:border-slate-700"
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-end gap-3 pt-3 border-t border-border">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setEditingLog(null)}
+                    className="border-slate-300 dark:border-slate-700"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm gap-2"
+                    disabled={isUpdating}
+                  >
+                    {isUpdating ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save Changes"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
