@@ -4,64 +4,64 @@
 
 @layer base {
   :root {
-    --background: 36 29% 97%; /* #FAF8F5 */
-    --foreground: 24 10% 10%; /* #1C1917 */
+    --background: 210 40% 98%; /* #F8FAFC Sáng tươi tắn, dịu mắt */
+    --foreground: 222.2 84% 4.9%; /* #020817 Chữ đen đậm rõ nét */
 
-    --card: 0 0% 100%; /* #FFFFFF */
-    --card-foreground: 24 10% 10%;
+    --card: 0 0% 100%; /* #FFFFFF Thẻ trắng tinh */
+    --card-foreground: 222.2 84% 4.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 24 10% 10%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 243 75% 59%; /* #4F46E5 Indigo */
+    --primary: 243 75% 59%; /* #4F46E5 Indigo nổi bật */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 35 24% 93%; /* #F3EFE9 Muted surface */
-    --secondary-foreground: 24 10% 10%;
+    --secondary: 210 40% 94%; /* #E2E8F0 */
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 35 24% 93%;
-    --muted-foreground: 30 7% 39%; /* #6B645C Muted text */
+    --muted: 210 40% 94%;
+    --muted-foreground: 215.4 25% 40%; /* Màu chữ phụ đậm rõ hơn, không bị mờ */
 
-    --accent: 234 100% 97%; /* #EEF0FF Soft tint */
+    --accent: 234 100% 96%; /* #EEF2FF */
     --accent-foreground: 243 75% 59%;
 
-    --destructive: 0 84% 60%; /* #DC2626 */
+    --destructive: 0 84.2% 60.2%; /* #EF4444 */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 33 22% 88%; /* #E7E1D8 */
-    --input: 33 22% 88%;
+    --border: 214.3 31.8% 88%; /* #E2E8F0 Viền sắc nét rõ ràng */
+    --input: 214.3 31.8% 86%;
     --ring: 243 75% 59%;
 
-    --radius: 0.75rem; /* 12px / rounded-xl */
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 24 10% 6%; /* #0F0E0D */
-    --foreground: 36 30% 94%; /* #F5F1EA */
+    --background: 224 71% 4%; /* #020617 Nền tối hiện đại */
+    --foreground: 210 40% 98%;
 
-    --card: 24 9% 8%; /* #171513 */
-    --card-foreground: 36 30% 94%;
+    --card: 224 71% 7%; /* #090E1F */
+    --card-foreground: 210 40% 98%;
 
-    --popover: 24 9% 8%;
-    --popover-foreground: 36 30% 94%;
+    --popover: 224 71% 7%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 239 84% 67%; /* Soft indigo for dark */
+    --primary: 239 84% 67%; /* Indigo sáng rực */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 24 11% 11%; /* #1F1C19 */
-    --secondary-foreground: 36 30% 94%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 24 11% 11%;
-    --muted-foreground: 34 9% 60%; /* #A39B90 */
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 25% 75%; /* Tăng sáng mạnh để thấy rõ mọi icon và chữ */
 
-    --accent: 24 11% 15%;
-    --accent-foreground: 36 30% 94%;
+    --accent: 217.2 32.6% 20%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 63% 31%;
+    --destructive: 0 75% 45%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 24 9% 15%; /* #2B2723 */
-    --input: 24 9% 15%;
+    --border: 217.2 32.6% 25%;
+    --input: 217.2 32.6% 25%;
     --ring: 239 84% 67%;
   }
 }
@@ -83,10 +83,10 @@
 
 /* Subtle dot grid pattern */
 .bg-grid-pattern {
-  background-image: radial-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(79, 70, 229, 0.08) 1.5px, transparent 1.5px);
   background-size: 24px 24px;
 }
 
 .dark .bg-grid-pattern {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(129, 140, 248, 0.12) 1.5px, transparent 1.5px);
 }

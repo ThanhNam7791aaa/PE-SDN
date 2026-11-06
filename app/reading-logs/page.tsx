@@ -8,14 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getGenreStyle } from "@/lib/genre-styles";
 import {
   BookOpen,
   Calendar,
   Clock,
-  Heart,
   Plus,
   RotateCcw,
   Search,
@@ -167,20 +165,16 @@ export default function ReadingLogsPage() {
       data-testid="reading-logs-page"
       className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10"
     >
-      {/* Responsive layout:
-          On desktop (>= 1280px): 12-col grid (4 cols left sticky, 8 cols right).
-          On mobile/tablet (< 1280px): single column ordered: Summary, Form, Filters, List.
-      */}
       <div className="flex flex-col xl:grid xl:grid-cols-12 gap-6 items-start">
-        {/* Summary Card: order-1 on mobile, left column on desktop */}
+        {/* Left column: Add form & Summary */}
         <div className="w-full order-1 xl:order-none xl:col-span-4 space-y-6 xl:sticky xl:top-20 self-start">
           {/* Add Reading Session Card */}
-          <Card className="shadow-subtle order-2 xl:order-1">
+          <Card className="shadow-subtle border-border order-2 xl:order-1">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-xl">Add reading session</CardTitle>
-                <div className="h-8 w-8 rounded-xl bg-accent text-primary flex items-center justify-center">
-                  <Plus className="h-4 w-4" />
+                <CardTitle className="text-xl font-bold">Add reading session</CardTitle>
+                <div className="h-8 w-8 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold">
+                  <Plus className="h-5 w-5" />
                 </div>
               </div>
             </CardHeader>
@@ -194,16 +188,16 @@ export default function ReadingLogsPage() {
                 {apiError && (
                   <div
                     data-testid="error-reading-log"
-                    className="p-3 text-xs sm:text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl flex items-center gap-2"
+                    className="p-3 text-xs sm:text-sm text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 rounded-xl flex items-center gap-2"
                   >
-                    <AlertCircle className="h-4 w-4 shrink-0" />
+                    <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
                     <span>{apiError}</span>
                   </div>
                 )}
 
-                {/* Book Title (Full width) */}
+                {/* Book Title */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="bookTitle" className="text-xs font-medium">
+                  <Label htmlFor="bookTitle" className="text-xs font-semibold text-foreground">
                     Book title
                   </Label>
                   <Input
@@ -217,11 +211,12 @@ export default function ReadingLogsPage() {
                       setSuccessMessage("");
                     }}
                     placeholder="e.g. Atomic Habits"
+                    className="border-slate-300 dark:border-slate-700 font-medium"
                   />
                   {bookTitleError && (
                     <div
                       data-testid="error-book-title"
-                      className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 mt-1"
+                      className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 font-medium mt-1"
                     >
                       <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                       <span>{bookTitleError}</span>
@@ -229,11 +224,11 @@ export default function ReadingLogsPage() {
                   )}
                 </div>
 
-                {/* 2-Column Grid on sm+: Minutes + Date */}
+                {/* 2-Column: Minutes + Date */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {/* Minutes Read */}
                   <div className="space-y-1.5">
-                    <Label htmlFor="minutesRead" className="text-xs font-medium">
+                    <Label htmlFor="minutesRead" className="text-xs font-semibold text-foreground">
                       Minutes read
                     </Label>
                     <Input
@@ -248,11 +243,12 @@ export default function ReadingLogsPage() {
                         setSuccessMessage("");
                       }}
                       placeholder="e.g. 40"
+                      className="border-slate-300 dark:border-slate-700 font-medium"
                     />
                     {minutesError && (
                       <div
                         data-testid="error-minutes"
-                        className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 mt-1"
+                        className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 font-medium mt-1"
                       >
                         <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                         <span>{minutesError}</span>
@@ -262,7 +258,7 @@ export default function ReadingLogsPage() {
 
                   {/* Date */}
                   <div className="space-y-1.5">
-                    <Label htmlFor="date" className="text-xs font-medium">
+                    <Label htmlFor="date" className="text-xs font-semibold text-foreground">
                       Date
                     </Label>
                     <Input
@@ -275,11 +271,12 @@ export default function ReadingLogsPage() {
                         setApiError("");
                         setSuccessMessage("");
                       }}
+                      className="border-slate-300 dark:border-slate-700 font-medium"
                     />
                     {dateError && (
                       <div
                         data-testid="error-date"
-                        className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 mt-1"
+                        className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 font-medium mt-1"
                       >
                         <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                         <span>{dateError}</span>
@@ -288,9 +285,9 @@ export default function ReadingLogsPage() {
                   </div>
                 </div>
 
-                {/* Genre (Native select) */}
+                {/* Genre */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="genre" className="text-xs font-medium">
+                  <Label htmlFor="genre" className="text-xs font-semibold text-foreground">
                     Genre
                   </Label>
                   <select
@@ -302,7 +299,7 @@ export default function ReadingLogsPage() {
                       setApiError("");
                       setSuccessMessage("");
                     }}
-                    className="flex min-h-[44px] w-full rounded-xl border border-input bg-card px-3.5 py-2 text-base sm:text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary transition-colors cursor-pointer"
+                    className="flex min-h-[44px] w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-card px-3.5 py-2 text-base sm:text-sm text-foreground font-medium shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
                   >
                     <option value="">Choose genre</option>
                     {GENRES.map((g) => (
@@ -314,7 +311,7 @@ export default function ReadingLogsPage() {
                   {genreError && (
                     <div
                       data-testid="error-genre"
-                      className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 mt-1"
+                      className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 font-medium mt-1"
                     >
                       <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                       <span>{genreError}</span>
@@ -322,10 +319,10 @@ export default function ReadingLogsPage() {
                   )}
                 </div>
 
-                {/* Note (optional) */}
+                {/* Note */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="note" className="text-xs font-medium text-muted-foreground">
-                    Note <span className="font-normal">(optional)</span>
+                  <Label htmlFor="note" className="text-xs font-semibold text-foreground">
+                    Note <span className="font-normal text-muted-foreground">(optional)</span>
                   </Label>
                   <Input
                     id="note"
@@ -333,13 +330,14 @@ export default function ReadingLogsPage() {
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                     placeholder="Optional note"
+                    className="border-slate-300 dark:border-slate-700"
                   />
                 </div>
 
                 <Button
                   type="submit"
                   data-testid="btn-add-reading-log"
-                  className="w-full gap-2 font-medium"
+                  className="w-full gap-2 font-semibold shadow-sm bg-indigo-600 hover:bg-indigo-700 text-white"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -358,9 +356,9 @@ export default function ReadingLogsPage() {
                 {successMessage && (
                   <div
                     data-testid="reading-log-success"
-                    className="p-3 text-xs sm:text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-2 mt-2"
+                    className="p-3 text-xs sm:text-sm text-green-800 dark:text-green-200 bg-green-100 dark:bg-green-950/60 border border-green-300 dark:border-green-800 rounded-xl flex items-center gap-2 mt-2 font-medium"
                   >
-                    <CheckCircle className="h-4 w-4 shrink-0" />
+                    <CheckCircle className="h-4 w-4 shrink-0 text-green-600" />
                     <span>{successMessage}</span>
                   </div>
                 )}
@@ -369,51 +367,51 @@ export default function ReadingLogsPage() {
           </Card>
 
           {/* Summary Card */}
-          <Card className="shadow-subtle order-1 xl:order-2">
+          <Card className="shadow-subtle border-border order-1 xl:order-2">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-xl font-serif">Summary</CardTitle>
-                <Sparkles className="h-4 w-4 text-primary" />
+                <CardTitle className="text-xl font-bold font-serif">Summary</CardTitle>
+                <Sparkles className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* 3 Stat Tiles in a row */}
+              {/* 3 Stat Tiles */}
               <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center">
                 {/* Tile 1: Sessions */}
-                <div className="p-3 rounded-xl bg-secondary/80 border border-border/60">
+                <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700">
                   <div className="flex justify-center mb-1">
-                    <BookOpen className="h-4 w-4 text-primary" />
+                    <BookOpen className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                   </div>
                   <div className="text-xl sm:text-2xl font-serif font-bold text-foreground tabular-nums">
                     <span data-testid="reading-log-count">{summary.count}</span>
                   </div>
-                  <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mt-0.5">
+                  <div className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mt-0.5">
                     Sessions
                   </div>
                 </div>
 
                 {/* Tile 2: Favorites */}
-                <div className="p-3 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/40">
+                <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800">
                   <div className="flex justify-center mb-1">
-                    <Star className="h-4 w-4 text-amber-500 fill-amber-400" />
+                    <Star className="h-5 w-5 text-amber-500 fill-amber-400" />
                   </div>
                   <div className="text-xl sm:text-2xl font-serif font-bold text-amber-600 dark:text-amber-400 tabular-nums">
                     <span data-testid="favorite-count">{summary.favoriteCount}</span>
                   </div>
-                  <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mt-0.5">
+                  <div className="text-[11px] font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider mt-0.5">
                     Favorites
                   </div>
                 </div>
 
                 {/* Tile 3: Minutes */}
-                <div className="p-3 rounded-xl bg-accent/60 border border-indigo-200/50 dark:border-indigo-900/40">
+                <div className="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-300 dark:border-indigo-800">
                   <div className="flex justify-center mb-1">
-                    <Clock className="h-4 w-4 text-primary" />
+                    <Clock className="h-5 w-5 text-indigo-600 dark:text-indigo-400 font-bold" />
                   </div>
-                  <div className="text-xl sm:text-2xl font-serif font-bold text-primary tabular-nums">
+                  <div className="text-xl sm:text-2xl font-serif font-bold text-indigo-600 dark:text-indigo-400 tabular-nums">
                     <span data-testid="total-minutes">{summary.totalMinutes}</span>
                   </div>
-                  <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mt-0.5">
+                  <div className="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider mt-0.5">
                     Minutes
                   </div>
                 </div>
@@ -421,7 +419,7 @@ export default function ReadingLogsPage() {
 
               {/* Genre Breakdown List */}
               <div className="space-y-3">
-                <div className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                <div className="text-xs font-bold text-foreground uppercase tracking-wider">
                   Minutes by Genre
                 </div>
 
@@ -443,36 +441,38 @@ export default function ReadingLogsPage() {
                         <div
                           key={row.genre}
                           data-testid="breakdown-row"
-                          className="p-2.5 rounded-xl bg-card border border-border/80 space-y-2"
+                          className="p-3 rounded-xl bg-card border border-border shadow-sm space-y-2"
                         >
                           <div className="flex items-center justify-between gap-2 text-xs">
-                            <div className="flex items-center gap-2 font-medium text-foreground">
+                            <div className="flex items-center gap-2 font-bold text-foreground">
                               <div
-                                className={`h-6 w-6 rounded-lg ${style.iconBg} ${style.iconColor} flex items-center justify-center shrink-0`}
+                                className={`h-7 w-7 rounded-lg ${style.iconBg} ${style.iconColor} flex items-center justify-center shrink-0 border border-border/50`}
                               >
-                                <IconComponent className="h-3.5 w-3.5" />
+                                <IconComponent className="h-4 w-4" />
                               </div>
-                              <span data-testid="breakdown-name">{row.genre}</span>
+                              <span data-testid="breakdown-name" className="text-sm font-semibold">
+                                {row.genre}
+                              </span>
                             </div>
 
-                            <div className="flex items-center gap-3 tabular-nums">
-                              <span className="text-muted-foreground">
+                            <div className="flex items-center gap-3 tabular-nums font-semibold">
+                              <span className="text-slate-600 dark:text-slate-300">
                                 <span data-testid="breakdown-count">{row.count}</span>{" "}
-                                <span className="text-[10px]">
+                                <span className="text-[11px] font-normal text-muted-foreground">
                                   {row.count === 1 ? "session" : "sessions"}
                                 </span>
                               </span>
-                              <span className="font-semibold text-foreground">
+                              <span className="text-foreground text-sm">
                                 <span data-testid="breakdown-total">{row.total}</span>{" "}
-                                <span className="text-[10px] text-muted-foreground font-normal">
+                                <span className="text-[11px] text-muted-foreground font-normal">
                                   min
                                 </span>
                               </span>
                             </div>
                           </div>
 
-                          {/* Decorative Progress Bar */}
-                          <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
+                          {/* Progress Bar */}
+                          <div className="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                             <div
                               className={`h-full ${style.barColor} rounded-full transition-[width] duration-500 motion-safe`}
                               style={{ width: `${percentage}%` }}
@@ -488,30 +488,30 @@ export default function ReadingLogsPage() {
           </Card>
         </div>
 
-        {/* Right Column: Filters + List (order-3 & 4 on mobile, 8 cols on desktop) */}
+        {/* Right column: Filter toolbar + List */}
         <div className="w-full order-3 xl:order-none xl:col-span-8 space-y-6">
-          {/* Filter Bar Toolbar */}
-          <Card className="shadow-subtle">
+          {/* Toolbar */}
+          <Card className="shadow-subtle border-border">
             <CardContent className="p-3 sm:p-4">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                {/* Search with inline clear */}
+                {/* Search */}
                 <div className="relative flex-1">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-indigo-600 dark:text-indigo-400 font-bold pointer-events-none" />
                   <Input
                     data-testid="search-input"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search book title or note..."
-                    className="pl-9 pr-8"
+                    className="pl-10 pr-9 border-slate-300 dark:border-slate-700 font-medium"
                   />
                   {searchQuery && (
                     <button
                       type="button"
                       onClick={() => setSearchQuery("")}
                       aria-label="Clear search"
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground rounded-md"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-foreground rounded-md transition-colors"
                     >
-                      <X className="h-3.5 w-3.5" />
+                      <X className="h-4 w-4" />
                     </button>
                   )}
                 </div>
@@ -522,7 +522,7 @@ export default function ReadingLogsPage() {
                     data-testid="filter-genre"
                     value={genreFilter}
                     onChange={(e) => setGenreFilter(e.target.value)}
-                    className="flex min-h-[44px] w-full rounded-xl border border-input bg-card px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+                    className="flex min-h-[44px] w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-card px-3 py-2 text-sm text-foreground font-medium shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
                   >
                     <option value="">All</option>
                     {GENRES.map((g) => (
@@ -533,28 +533,28 @@ export default function ReadingLogsPage() {
                   </select>
                 </div>
 
-                {/* Favorites Only Toggle & Clear */}
+                {/* Favorites Only & Clear */}
                 <div className="flex items-center justify-between sm:justify-start gap-2">
-                  <label className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-card text-xs font-medium cursor-pointer hover:bg-muted transition-colors select-none">
+                  <label className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-card text-xs font-semibold text-foreground cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors select-none shadow-sm">
                     <input
                       type="checkbox"
                       data-testid="filter-favorite"
                       checked={favoriteFilter}
                       onChange={(e) => setFavoriteFilter(e.target.checked)}
-                      className="rounded border-input text-primary focus:ring-primary h-4 w-4"
+                      className="rounded border-slate-400 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer"
                     />
                     <span>Favorites only</span>
                   </label>
 
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     data-testid="btn-clear-filters"
                     onClick={clearFilters}
-                    className="gap-1.5 text-xs text-muted-foreground hover:text-foreground shrink-0"
+                    className="gap-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0"
                     title="Reset filters"
                   >
-                    <RotateCcw className="h-3.5 w-3.5" />
+                    <RotateCcw className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                     <span>Clear</span>
                   </Button>
                 </div>
@@ -567,16 +567,16 @@ export default function ReadingLogsPage() {
             {logsLoading && readingLogs.length === 0 ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <Card key={i} className="p-4 space-y-3">
+                  <Card key={i} className="p-4 space-y-3 border-border">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Skeleton className="h-10 w-10 rounded-xl" />
+                        <Skeleton className="h-12 w-12 rounded-xl" />
                         <div className="space-y-1.5">
-                          <Skeleton className="h-5 w-40" />
-                          <Skeleton className="h-3.5 w-24" />
+                          <Skeleton className="h-5 w-48" />
+                          <Skeleton className="h-3.5 w-32" />
                         </div>
                       </div>
-                      <Skeleton className="h-8 w-16" />
+                      <Skeleton className="h-8 w-20" />
                     </div>
                   </Card>
                 ))}
@@ -584,13 +584,13 @@ export default function ReadingLogsPage() {
             ) : readingLogs.length === 0 ? (
               <Card
                 data-testid="reading-logs-empty"
-                className="py-16 text-center border-dashed border-2 border-border/80 shadow-none bg-card/60"
+                className="py-16 text-center border-dashed border-2 border-slate-300 dark:border-slate-700 shadow-none bg-card"
               >
                 <div className="max-w-xs mx-auto space-y-3">
-                  <div className="h-14 w-14 rounded-2xl bg-muted mx-auto flex items-center justify-center text-muted-foreground">
-                    <BookOpen className="h-7 w-7" />
+                  <div className="h-16 w-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 mx-auto flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm">
+                    <BookOpen className="h-8 w-8" />
                   </div>
-                  <h3 className="font-serif font-medium text-lg text-foreground">
+                  <h3 className="font-serif font-bold text-lg text-foreground">
                     No reading sessions found
                   </h3>
                   <p className="text-xs text-muted-foreground">
@@ -608,14 +608,14 @@ export default function ReadingLogsPage() {
                     <div
                       key={log.id}
                       data-testid="reading-log-item"
-                      className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 shadow-subtle hover:shadow-subtle-hover hover:border-primary/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                      className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-card p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-800 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                     >
-                      {/* Left & Middle info */}
+                      {/* Left & Middle */}
                       <div className="flex items-start gap-3.5 min-w-0 flex-1">
                         <div
-                          className={`h-11 w-11 rounded-xl ${style.iconBg} ${style.iconColor} flex items-center justify-center shrink-0 mt-0.5`}
+                          className={`h-12 w-12 rounded-xl ${style.iconBg} ${style.iconColor} border ${style.badgeBorder} flex items-center justify-center shrink-0 mt-0.5 shadow-sm`}
                         >
-                          <IconComponent className="h-5 w-5" />
+                          <IconComponent className="h-6 w-6" />
                         </div>
 
                         <div className="space-y-1.5 min-w-0 flex-1">
@@ -623,58 +623,60 @@ export default function ReadingLogsPage() {
                           <h4
                             data-testid="reading-log-title"
                             title={log.bookTitle}
-                            className="font-medium text-base text-foreground truncate"
+                            className="font-semibold text-base text-foreground truncate"
                           >
                             {log.bookTitle}
                           </h4>
 
                           {/* Meta Row: Genre Badge, Date, Minutes */}
-                          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-muted-foreground">
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
                             <span
-                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${style.badgeBg} ${style.badgeText} ${style.badgeBorder}`}
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${style.badgeBg} ${style.badgeText} ${style.badgeBorder}`}
                             >
                               <span data-testid="reading-log-genre">{log.genre}</span>
                             </span>
 
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-3.5 w-3.5" />
+                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 font-medium">
+                              <Calendar className="h-4 w-4 text-slate-500" />
                               <span data-testid="reading-log-date">{log.readOn}</span>
                             </div>
 
-                            <div className="flex items-center gap-1 font-medium text-foreground tabular-nums">
-                              <Clock className="h-3.5 w-3.5 text-primary" />
+                            <div className="flex items-center gap-1 font-bold text-foreground tabular-nums">
+                              <Clock className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                               <span data-testid="reading-log-minutes">{log.minutesRead}</span>
-                              <span className="text-muted-foreground font-normal">min</span>
+                              <span className="text-muted-foreground font-normal text-xs">min</span>
                             </div>
                           </div>
 
-                          {/* Optional Note (clamped to 2 lines) */}
+                          {/* Note */}
                           {log.note && (
-                            <p className="text-xs text-muted-foreground italic line-clamp-2 pt-1">
+                            <p className="text-xs text-slate-600 dark:text-slate-400 italic line-clamp-2 pt-1">
                               &ldquo;{log.note}&rdquo;
                             </p>
                           )}
                         </div>
                       </div>
 
-                      {/* Right Action Buttons */}
+                      {/* Right Actions */}
                       <div className="flex items-center justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/50">
-                        {/* Toggle Favorite Button */}
+                        {/* Star Button */}
                         <button
                           type="button"
                           data-testid="btn-toggle-favorite"
                           aria-pressed={log.favorite ? "true" : "false"}
                           onClick={() => toggleFavorite(log.id, log.favorite)}
-                          className={`h-10 w-10 rounded-xl border flex items-center justify-center transition-all ${
+                          className={`h-11 w-11 rounded-xl border flex items-center justify-center transition-all ${
                             log.favorite
-                              ? "bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-500 scale-105 shadow-sm"
-                              : "bg-card border-input text-muted-foreground hover:text-amber-500 hover:border-amber-300"
+                              ? "bg-amber-100 dark:bg-amber-950 border-amber-400 text-amber-600 scale-105 shadow-sm"
+                              : "bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-400 hover:text-amber-500 hover:border-amber-400"
                           }`}
                           title={log.favorite ? "Unmark favorite" : "Mark as favorite"}
                         >
                           <Star
-                            className={`h-4 w-4 ${
-                              log.favorite ? "fill-amber-400 text-amber-500" : ""
+                            className={`h-5 w-5 ${
+                              log.favorite
+                                ? "fill-amber-400 text-amber-500"
+                                : "text-slate-400 hover:text-amber-500"
                             }`}
                           />
                         </button>
@@ -685,10 +687,10 @@ export default function ReadingLogsPage() {
                           data-testid="btn-delete-reading-log"
                           aria-label="Delete"
                           onClick={() => deleteReadingLog(log.id)}
-                          className="h-10 w-10 rounded-xl border border-transparent hover:border-destructive/30 text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex items-center justify-center transition-colors"
+                          className="h-11 w-11 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-red-400 text-slate-600 dark:text-slate-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 flex items-center justify-center transition-colors shadow-sm"
                           title="Delete reading session"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-5 w-5" />
                         </button>
                       </div>
                     </div>
