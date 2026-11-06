@@ -10,10 +10,10 @@ export default function HomePage() {
           data-testid="home-title"
           className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl"
         >
-          ExpenseTrail
+          ReadLog
         </h1>
         <p className="max-w-2xl mx-auto text-lg text-gray-600">
-          A modern personal expense tracker designed to help you take control of your daily finances with real-time analytics and category breakdown.
+          A modern web app where you track your personal reading sessions: which book, how many minutes, what genre, and when.
         </p>
         <div className="pt-4 flex justify-center gap-4">
           <Link href="/register">
@@ -30,36 +30,36 @@ export default function HomePage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
-            <CardTitle>Track spending</CardTitle>
-            <CardDescription>Log your daily purchases with precision</CardDescription>
+            <CardTitle>Log every session</CardTitle>
+            <CardDescription>Record book title, duration, and notes</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600">
-              Easily record what you spent, the amount, date, and optional notes to keep track of every dollar.
+              Easily record what book you read, how many minutes you spent, and track your daily reading streak.
             </p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
-            <CardTitle>Sort into categories</CardTitle>
-            <CardDescription>Organize your money logically</CardDescription>
+            <CardTitle>Sort by genre</CardTitle>
+            <CardDescription>Organize your books by genre</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600">
-              Categorize expenses into Food, Transport, Bills, Shopping, or Other for effortless filtering.
+              Classify your reading into Fiction, Non-Fiction, Sci-Fi, Biography, or Other for effortless filtering.
             </p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
-            <CardTitle>See where it goes</CardTitle>
+            <CardTitle>See minutes read</CardTitle>
             <CardDescription>Real-time visual summaries</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600">
-              View live totals, star important expenses, and examine a detailed breakdown of your highest spending areas.
+              View live totals, favorite important sessions, and examine a detailed breakdown of your reading habits.
             </p>
           </CardContent>
         </Card>
@@ -67,4 +67,3 @@ export default function HomePage() {
     </div>
   );
 }
-

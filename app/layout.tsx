@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/context/auth-context";
-import { ExpenseProvider } from "@/context/expense-context";
+import { ReadingLogProvider } from "@/context/reading-log-context";
 import { Header } from "@/components/header";
 
 export const metadata: Metadata = {
-  title: "ExpenseTrail - Personal Expense Tracker",
-  description: "Track your personal expenses, categorize spending, and stay on top of your budget.",
+  title: "ReadLog - Track Personal Reading Sessions",
+  description: "Track your personal reading sessions, categorize by genre, and monitor minutes read.",
 };
 
 export default function RootLayout({
@@ -18,10 +18,10 @@ export default function RootLayout({
     <html lang="en">
       <body className="font-sans antialiased bg-gray-50 text-gray-900">
         <AuthProvider>
-          <ExpenseProvider>
+          <ReadingLogProvider>
             <Header />
             <main className="min-h-[calc(100vh-4rem)]">{children}</main>
-          </ExpenseProvider>
+          </ReadingLogProvider>
         </AuthProvider>
       </body>
     </html>

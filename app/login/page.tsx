@@ -61,7 +61,7 @@ export default function LoginPage() {
         setAuthError(data.error || "Invalid email or password");
       } else {
         await checkAuth();
-        router.push("/expenses");
+        router.push("/reading-logs");
       }
     } catch {
       setAuthError("Network error. Please try again.");
@@ -154,4 +154,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

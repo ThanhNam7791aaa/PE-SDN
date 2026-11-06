@@ -11,7 +11,7 @@ export function Header() {
     <header className="border-b bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <Link href="/" className="font-bold text-xl text-blue-600 flex items-center gap-2">
-          ExpenseTrail
+          ReadLog
         </Link>
 
         <div className="flex items-center gap-4">
@@ -23,11 +23,11 @@ export function Header() {
                     {user.email}
                   </span>
                   <Link
-                    href="/expenses"
-                    data-testid="link-expenses"
+                    href="/reading-logs"
+                    data-testid="link-reading-logs"
                     className="text-sm font-medium text-blue-600 hover:text-blue-800"
                   >
-                    Expenses
+                    Reading Logs
                   </Link>
                   <Button
                     variant="outline"
@@ -59,4 +59,3 @@ export function Header() {
     </header>
   );
 }
-
